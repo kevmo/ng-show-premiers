@@ -2,6 +2,9 @@ app.controller("mainController", function($scope, $http){
 
     $scope.apiKey = "0209463d7666519dfb77918dca6b0331";
     $scope.results = [];
+    $scope.filterText = null;
+    $scope.availableGenres = [];
+    $scope.genreFilter = null;
 
     $scope.init = function() {
 
@@ -24,6 +27,19 @@ app.controller("mainController", function($scope, $http){
             //date string for filtering use input
             tvshow.date = date; //attaching full date to each episode
             $scope.results.push(tvshow);
+            //loop through genres for this episode
+            angular.forEach(tvshow.show.genres, function(genre, index){
+              //only add to available generes array if it doesnt already exist
+              var exists = false;
+              angular.forEach($scope.availableGenres, function(avGenre, index){
+                            if (avGenre == genre) {
+                                exists = true;
+                            }
+                        });
+                        if (exists === false) {
+                            $scope.availableGenres.push(genre);
+                        }
+            });
           });
         });
         console.log($scope.results);
@@ -35,5 +51,27 @@ app.controller("mainController", function($scope, $http){
 
     };
 
+    $scope.setGenreFilter = function(genre){
+      $scope.genreFilter = genre;
+    };
+
 });
+
+app.filter('isGenre', function(){
+  return function(input, genre){
+    if (typeof genre == 'undefined' || genre == null){
+      return input;
+    } else {
+      var out = [];
+      for (var a = 0; a < input.length; a++){
+                for (var b = 0; b < input[a].show.genres.length; b++){
+                    if(input[a].show.genres[b] == genre) {
+                        out.push(input[a]);
+                    }
+                }
+            }
+            return out;
+    }
+  }
+})
 
